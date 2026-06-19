@@ -32,31 +32,63 @@ const COUNTRY_STATS_COLLECTION = "country-stats";
 const FALLBACK_COUNTRY = "United States";
 const FALLBACK_COUNTRY_CODE = "US";
 
+const TZ_COUNTRY_MAP: Record<string, string> = {
+  "Africa/Dar_es_Salaam": "TZ", "Africa/Nairobi": "KE", "Africa/Kampala": "UG",
+  "Africa/Kigali": "RW", "Africa/Bujumbura": "BI", "Africa/Johannesburg": "ZA",
+  "Africa/Cairo": "EG", "Africa/Casablanca": "MA", "Africa/Lagos": "NG",
+  "Africa/Accra": "GH", "Africa/Ndjamena": "TD", "Africa/Tunis": "TN",
+  "Africa/Algiers": "DZ", "Africa/Tripoli": "LY", "Africa/Khartoum": "SD",
+  "Africa/Addis_Ababa": "ET", "Africa/Mogadishu": "SO", "Africa/Djibouti": "DJ",
+  "Africa/Maputo": "MZ", "Africa/Lusaka": "ZM", "Africa/Harare": "ZW",
+  "Africa/Gaborone": "BW", "Africa/Windhoek": "NA", "Africa/Luanda": "AO",
+  "Africa/Kinshasa": "CD", "Africa/Douala": "CM", "Africa/Abidjan": "CI",
+  "Africa/Dakar": "SN", "Africa/Bamako": "ML", "Africa/Ouagadougou": "BF",
+  "Africa/Niamey": "NE", "Africa/Bangui": "CF", "Africa/Libreville": "GA",
+  "Africa/Porto-Novo": "BJ", "Africa/Lome": "TG", "Africa/Freetown": "SL",
+  "Africa/Monrovia": "LR", "Africa/Conakry": "GN", "Africa/Bissau": "GW",
+  "Africa/Nouakchott": "MR", "Africa/El_Aaiun": "EH", "Africa/Asmara": "ER",
+  "Africa/Mbabane": "SZ", "Africa/Maseru": "LS", "Africa/Blantyre": "MW",
+  "Africa/Kigoma": "TZ", "Africa/Mwanza": "TZ",
+  "America/New_York": "US", "America/Chicago": "US", "America/Los_Angeles": "US",
+  "America/Denver": "US", "America/Phoenix": "US", "America/Anchorage": "US",
+  "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA",
+  "America/Mexico_City": "MX", "America/Sao_Paulo": "BR", "America/Argentina/Buenos_Aires": "AR",
+  "America/Bogota": "CO", "America/Lima": "PE", "America/Santiago": "CL",
+  "America/Caracas": "VE", "America/Panama": "PA", "America/Havana": "CU",
+  "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE",
+  "Europe/Madrid": "ES", "Europe/Rome": "IT", "Europe/Amsterdam": "NL",
+  "Europe/Brussels": "BE", "Europe/Zurich": "CH", "Europe/Vienna": "AT",
+  "Europe/Stockholm": "SE", "Europe/Oslo": "NO", "Europe/Copenhagen": "DK",
+  "Europe/Helsinki": "FI", "Europe/Warsaw": "PL", "Europe/Prague": "CZ",
+  "Europe/Budapest": "HU", "Europe/Dublin": "IE", "Europe/Athens": "GR",
+  "Europe/Bucharest": "RO", "Europe/Sofia": "BG", "Europe/Belgrade": "RS",
+  "Europe/Zagreb": "HR", "Europe/Istanbul": "TR", "Europe/Moscow": "RU",
+  "Europe/Kiev": "UA", "Europe/Lisbon": "PT", "Europe/Monaco": "MC",
+  "Asia/Tokyo": "JP", "Asia/Seoul": "KR", "Asia/Shanghai": "CN",
+  "Asia/Hong_Kong": "HK", "Asia/Singapore": "SG", "Asia/Kolkata": "IN",
+  "Asia/Karachi": "PK", "Asia/Dhaka": "BD", "Asia/Bangkok": "TH",
+  "Asia/Ho_Chi_Minh": "VN", "Asia/Manila": "PH", "Asia/Jakarta": "ID",
+  "Asia/Kuala_Lumpur": "MY", "Asia/Riyadh": "SA", "Asia/Dubai": "AE",
+  "Asia/Tehran": "IR", "Asia/Baghdad": "IQ", "Asia/Jerusalem": "IL",
+  "Asia/Amman": "JO", "Asia/Beirut": "LB", "Asia/Damascus": "SY",
+  "Asia/Kathmandu": "NP", "Asia/Colombo": "LK", "Asia/Rangoon": "MM",
+  "Asia/Phnom_Penh": "KH", "Asia/Vientiane": "LA", "Asia/Ulaanbaatar": "MN",
+  "Asia/Tashkent": "UZ", "Asia/Almaty": "KZ", "Asia/Baku": "AZ",
+  "Asia/Tbilisi": "GE", "Asia/Yerevan": "AM", "Asia/Kabul": "AF",
+  "Asia/Ashgabat": "TM", "Asia/Dushanbe": "TJ", "Asia/Bishkek": "KG",
+  "Asia/Nicosia": "CY", "Asia/Muscat": "OM", "Asia/Doha": "QA",
+  "Asia/Bahrain": "BH", "Asia/Kuwait": "KW",
+  "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "Australia/Perth": "AU",
+  "Australia/Brisbane": "AU", "Australia/Adelaide": "AU",
+  "Pacific/Auckland": "NZ", "Pacific/Fiji": "FJ", "Pacific/Honolulu": "US",
+  "Pacific/Guam": "GU", "Pacific/Samoa": "WS", "Pacific/Tahiti": "PF",
+};
+
 function getCountryFromTimezone(): { name: string; code: string } {
   try {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (!timezone) return { name: FALLBACK_COUNTRY, code: FALLBACK_COUNTRY_CODE };
-    const parts = timezone.split("/");
-    if (parts.length < 2) return { name: FALLBACK_COUNTRY, code: FALLBACK_COUNTRY_CODE };
-    const region = parts[parts.length - 1].replace(/_/g, " ");
-    const countryMap: Record<string, string> = {
-      Tanzania: "TZ", Kenya: "KE", Uganda: "UG", Rwanda: "RW",
-      Burundi: "BI", "South Africa": "ZA", Nigeria: "NG", Ghana: "GH",
-      "United States": "US", Canada: "CA", "United Kingdom": "GB",
-      Germany: "DE", France: "FR", Italy: "IT", Spain: "ES",
-      Portugal: "PT", Netherlands: "NL", Belgium: "BE", Switzerland: "CH",
-      Austria: "AT", Sweden: "SE", Norway: "NO", Denmark: "DK",
-      Finland: "FI", Poland: "PL", "Czech Republic": "CZ", Croatia: "HR",
-      Greece: "GR", Hungary: "HU", Ireland: "IE", Romania: "RO",
-      Turkey: "TR", Israel: "IL", India: "IN", Pakistan: "PK",
-      Bangladesh: "BD", Japan: "JP", China: "CN", "South Korea": "KR",
-      Australia: "AU", "New Zealand": "NZ", Brazil: "BR", Argentina: "AR",
-      Mexico: "MX", Colombia: "CO", Chile: "CL", Peru: "PE",
-      Russia: "RU", Ukraine: "UA", Egypt: "EG", "Saudi Arabia": "SA",
-      Iran: "IR", Iraq: "IQ", Philippines: "PH", Vietnam: "VN",
-      Thailand: "TH", Malaysia: "MY", Singapore: "SG", Indonesia: "ID",
-    };
-    const code = countryMap[region] || FALLBACK_COUNTRY_CODE;
+    const code = TZ_COUNTRY_MAP[timezone] || FALLBACK_COUNTRY_CODE;
     return { name: getCountryName(code), code };
   } catch {
     return { name: FALLBACK_COUNTRY, code: FALLBACK_COUNTRY_CODE };
