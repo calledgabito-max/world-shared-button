@@ -64,7 +64,7 @@ export default function DonationModal({
 
   const handleDonate = (tier: (typeof TIERS)[0]) => {
     setSelectedTier(tier.id);
-    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=your-paypal-email@example.com&item_name=World+Shared+Button+-+${encodeURIComponent(tier.name)}&amount=${tier.paypal}&currency_code=USD&return=https://worldsharedbutton.tanlink.site&cancel_return=https://worldsharedbutton.tanlink.site`;
+    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=calledgabito%40gmail.com&item_name=World+Shared+Button+-+${encodeURIComponent(tier.name)}&amount=${tier.paypal}&currency_code=USD&return=https://worldsharedbutton.tanlink.site&cancel_return=https://worldsharedbutton.tanlink.site`;
     window.open(paypalUrl, "_blank", "noopener,noreferrer");
     setTimeout(() => setSelectedTier(null), 3000);
   };
