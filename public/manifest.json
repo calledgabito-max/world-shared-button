@@ -1,0 +1,16 @@
+{
+  "name": "The World's Shared Button",
+  "short_name": "SharedButton",
+  "description": "Every person on Earth shares this button. What happens if humanity keeps clicking?",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
