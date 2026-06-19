@@ -20,6 +20,10 @@ import NotificationBanner from "@/components/NotificationBanner";
 import DonationModal from "@/components/DonationModal";
 import ClickCombo from "@/components/ClickCombo";
 import ClickerStats from "@/components/ClickerStats";
+import ContactModal from "@/components/ContactModal";
+import DailyRace from "@/components/DailyRace";
+import DonationTicker from "@/components/DonationTicker";
+import ReferralShare from "@/components/ReferralShare";
 
 function ParticlesBackground() {
   const positions = [
@@ -75,6 +79,7 @@ export default function Home() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 1200, height: 800 });
   const [showDonation, setShowDonation] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const comboRef = useRef<{ registerClick: () => void }>(null);
 
   useEffect(() => {
@@ -120,23 +125,37 @@ export default function Home() {
 
       <ClickCombo ref={comboRef} onCombo={() => {}} />
 
-      {/* Floating Donate Button */}
-      <motion.button
-        onClick={() => setShowDonation(true)}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 right-20 z-50 w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-red-500 shadow-lg shadow-red-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-red-500/40 transition-all"
-        title="Support the experiment"
-      >
-        ❤️
-      </motion.button>
-
-      <SoundToggle muted={muted} onToggle={() => setMuted(!muted)} />
+      {/* Floating Buttons */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        <SoundToggle muted={muted} onToggle={() => setMuted(!muted)} />
+        <motion.button
+          onClick={() => setShowContact(true)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-teal-500 shadow-lg shadow-green-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-green-500/40 transition-all"
+          title="Partnerships & Press"
+        >
+          🤝
+        </motion.button>
+        <motion.button
+          onClick={() => setShowDonation(true)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-red-500 shadow-lg shadow-red-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-red-500/40 transition-all"
+          title="Support the experiment"
+        >
+          ❤️
+        </motion.button>
+      </div>
       <DonationModal
         isOpen={showDonation}
         onClose={() => setShowDonation(false)}
         totalClicks={totalClicks}
         userCountry={userCountry.name}
+      />
+      <ContactModal
+        isOpen={showContact}
+        onClose={() => setShowContact(false)}
       />
 
       {disconnected && (
@@ -191,7 +210,12 @@ export default function Home() {
           <MainButton onClick={onButtonClick} activeEvent={activeEvent} />
         </section>
 
-        {/* Two Column: Clicker Stats + User Info */}
+        {/* Donation Ticker */}
+        <section>
+          <DonationTicker totalClicks={totalClicks} />
+        </section>
+
+        {/* Two Column: Clicker Stats + Daily Race */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ClickerStats
             userCountry={userCountry.name}
@@ -200,7 +224,13 @@ export default function Home() {
             personalClicks={personalClicks}
             totalClicks={totalClicks}
           />
+          <DailyRace countryStats={countryStats} />
+        </section>
+
+        {/* Online Users + Referral */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <OnlineUsers users={onlineUsers} totalOnline={onlineUsers.length} />
+          <ReferralShare userId={userId} totalClicks={totalClicks} />
         </section>
 
         {/* Activity Feed */}
