@@ -128,24 +128,20 @@ export default function Home() {
       {/* Floating Buttons */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
         <SoundToggle muted={muted} onToggle={() => setMuted(!muted)} />
-        <motion.button
-          onClick={() => setShowContact(true)}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-teal-500 shadow-lg shadow-green-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-green-500/40 transition-all"
+        <button
+          onClick={() => requestAnimationFrame(() => setShowContact(true))}
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-teal-500 shadow-lg shadow-green-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-green-500/40 transition-all hover:scale-110 active:scale-90 cursor-pointer"
           title="Partnerships & Press"
         >
           🤝
-        </motion.button>
-        <motion.button
-          onClick={() => setShowDonation(true)}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-red-500 shadow-lg shadow-red-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-red-500/40 transition-all"
+        </button>
+        <button
+          onClick={() => requestAnimationFrame(() => setShowDonation(true))}
+          className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-red-500 shadow-lg shadow-red-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-red-500/40 transition-all hover:scale-110 active:scale-90 cursor-pointer"
           title="Support the experiment"
         >
           ❤️
-        </motion.button>
+        </button>
       </div>
       <DonationModal
         isOpen={showDonation}

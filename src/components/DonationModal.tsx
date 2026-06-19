@@ -64,7 +64,7 @@ export default function DonationModal({
 
   const handleDonate = (tier: (typeof TIERS)[0]) => {
     setSelectedTier(tier.id);
-    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=calledgabito%40gmail.com&item_name=World+Shared+Button+-+${encodeURIComponent(tier.name)}&amount=${tier.paypal}&currency_code=USD&return=https://worldsharedbutton.tanlink.site&cancel_return=https://worldsharedbutton.tanlink.site`;
+    const paypalUrl = `https://www.paypal.com/paypalme/calledgabito/${tier.paypal}USD`;
     window.open(paypalUrl, "_blank", "noopener,noreferrer");
     setTimeout(() => setSelectedTier(null), 3000);
   };
@@ -192,9 +192,24 @@ export default function DonationModal({
               </div>
 
               <p className="text-[10px] text-gray-600 text-center mt-4">
-                All donations go toward server costs and development. 
+                All donations go toward server costs and development.
                 Thank you for being part of this experiment! 🌍
               </p>
+              <div className="mt-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-center">
+                <p className="text-[10px] text-yellow-400/80">
+                  ⚡ Donations processed via PayPal. If the link doesn&apos;t open,
+                  make sure your PayPal Business account is verified and set up for donations.
+                  <br />
+                  <a
+                    href="https://www.paypal.com/bizsignup/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-yellow-300"
+                  >
+                    Set up PayPal Business account →
+                  </a>
+                </p>
+              </div>
             </div>
           </motion.div>
         </>
