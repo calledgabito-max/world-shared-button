@@ -87,9 +87,24 @@ const TZ_COUNTRY_MAP: Record<string, string> = {
 function getCountryFromTimezone(): { name: string; code: string } {
   try {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (!timezone) return { name: FALLBACK_COUNTRY, code: FALLBACK_COUNTRY_CODE };
-    const code = TZ_COUNTRY_MAP[timezone] || FALLBACK_COUNTRY_CODE;
-    return { name: getCountryName(code), code };
+
+    const languages: string[] = [];
+    if (navigator.languages) languages.push(...navigator.languages);
+    if (navigator.language) languages.push(navigator.language);
+    for (const lang of languages) {
+      if (/^[a-z]{2}-[A-Z]{2}$/.test(lang)) {
+        const code = lang.split("-")[1];
+        const name = getCountryName(code);
+        if (name !== code) return { name, code };
+      }
+    }
+
+    if (timezone) {
+      const code = TZ_COUNTRY_MAP[timezone] || FALLBACK_COUNTRY_CODE;
+      return { name: getCountryName(code), code };
+    }
+
+    return { name: FALLBACK_COUNTRY, code: FALLBACK_COUNTRY_CODE };
   } catch {
     return { name: FALLBACK_COUNTRY, code: FALLBACK_COUNTRY_CODE };
   }
