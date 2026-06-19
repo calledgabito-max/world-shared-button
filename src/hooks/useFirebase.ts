@@ -77,6 +77,7 @@ export function useFirebase() {
   const [mostActiveCountry, setMostActiveCountry] = useState("");
   const [muted, setMuted] = useState(false);
   const [disconnected, setDisconnected] = useState(false);
+  const [personalClicks, setPersonalClicks] = useState(0);
   const [notification, setNotification] = useState<{
     message: string;
     type: "achievement" | "milestone" | "event" | "unlock";
@@ -172,6 +173,7 @@ export function useFirebase() {
 
     soundManager.playClick();
     setClicksToday((prev) => prev + incrementAmount);
+    setPersonalClicks((prev) => prev + incrementAmount);
 
     if (Math.random() < 0.08) {
       const eventConfig = SECRET_EVENTS[Math.floor(Math.random() * SECRET_EVENTS.length)];
@@ -361,5 +363,6 @@ export function useFirebase() {
     disconnected,
     handleClick,
     notification,
+    personalClicks,
   };
 }

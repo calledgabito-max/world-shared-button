@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
 import ReactConfetti from "react-confetti";
 import { useFirebase } from "@/hooks/useFirebase";
 import MainButton from "@/components/MainButton";
@@ -17,8 +17,9 @@ import ViralSharing from "@/components/ViralSharing";
 import SecretEvents from "@/components/SecretEvents";
 import SoundToggle from "@/components/SoundToggle";
 import NotificationBanner from "@/components/NotificationBanner";
-import { getFlag } from "@/lib/utils";
-import { formatNumber } from "@/lib/utils";
+import DonationModal from "@/components/DonationModal";
+import ClickCombo from "@/components/ClickCombo";
+import ClickerStats from "@/components/ClickerStats";
 
 function ParticlesBackground() {
   const positions = [
@@ -50,19 +51,11 @@ function ParticlesBackground() {
         <motion.div
           key={i}
           className="absolute w-1 h-1 bg-white/20 rounded-full"
-          style={{
-            left: `${pos.l}%`,
-            top: `${pos.t}%`,
-          }}
-          animate={{
-            y: [0, -30, 0],
-            opacity: [0.2, 0.6, 0.2],
-          }}
+          style={{ left: `${pos.l}%`, top: `${pos.t}%` }}
+          animate={{ y: [0, -30, 0], opacity: [0.2, 0.6, 0.2] }}
           transition={{
-            duration: 3 + pos.d,
-            repeat: Infinity,
-            delay: pos.dl,
-            ease: "easeInOut",
+            duration: 3 + pos.d, repeat: Infinity,
+            delay: pos.dl, ease: "easeInOut",
           }}
         />
       ))}
@@ -72,27 +65,17 @@ function ParticlesBackground() {
 
 export default function Home() {
   const {
-    totalClicks,
-    onlineUsers,
-    activities,
-    countryStats,
-    unlockedAchievements,
-    currentMilestoneIndex,
-    activeEvent,
-    userCountry,
-    clicksToday,
-    averageCps,
-    mostActiveCountry,
-    muted,
-    setMuted,
-    disconnected,
-    handleClick,
-    notification,
-    userId,
+    totalClicks, onlineUsers, activities, countryStats,
+    unlockedAchievements, currentMilestoneIndex, activeEvent,
+    userCountry, clicksToday, averageCps, mostActiveCountry,
+    muted, setMuted, disconnected, handleClick, notification,
+    userId, personalClicks,
   } = useFirebase();
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 1200, height: 800 });
+  const [showDonation, setShowDonation] = useState(false);
+  const comboRef = useRef<{ registerClick: () => void }>(null);
 
   useEffect(() => {
     const handleResize = () =>
@@ -104,6 +87,7 @@ export default function Home() {
 
   const onButtonClick = useCallback(() => {
     handleClick();
+    comboRef.current?.registerClick();
 
     if (Math.random() < 0.1) {
       setShowConfetti(true);
@@ -123,10 +107,8 @@ export default function Home() {
 
       {showConfetti && (
         <ReactConfetti
-          width={windowSize.width}
-          height={windowSize.height}
-          recycle={false}
-          numberOfPieces={200}
+          width={windowSize.width} height={windowSize.height}
+          recycle={false} numberOfPieces={200}
           colors={["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981"]}
         />
       )}
@@ -135,7 +117,27 @@ export default function Home() {
       {notification && (
         <NotificationBanner message={notification.message} type={notification.type} />
       )}
+
+      <ClickCombo ref={comboRef} onCombo={() => {}} />
+
+      {/* Floating Donate Button */}
+      <motion.button
+        onClick={() => setShowDonation(true)}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-6 right-20 z-50 w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-red-500 shadow-lg shadow-red-500/30 flex items-center justify-center text-lg hover:shadow-xl hover:shadow-red-500/40 transition-all"
+        title="Support the experiment"
+      >
+        ❤️
+      </motion.button>
+
       <SoundToggle muted={muted} onToggle={() => setMuted(!muted)} />
+      <DonationModal
+        isOpen={showDonation}
+        onClose={() => setShowDonation(false)}
+        totalClicks={totalClicks}
+        userCountry={userCountry.name}
+      />
 
       {disconnected && (
         <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 bg-yellow-500/20 border border-yellow-500/30 backdrop-blur-xl rounded-full px-4 py-1 text-xs text-yellow-300">
@@ -189,25 +191,20 @@ export default function Home() {
           <MainButton onClick={onButtonClick} activeEvent={activeEvent} />
         </section>
 
-        {/* User Info */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center"
-        >
-          <div className="inline-flex items-center gap-2 backdrop-blur-xl bg-white/5 border border-white/10 rounded-full px-4 py-2">
-            <span className="text-lg">{getFlag(userCountry.code)}</span>
-            <span className="text-sm text-gray-300">{userCountry.name}</span>
-              <span className="text-[10px] text-gray-500 font-mono">
-                ID: {userId.slice(0, 8).toUpperCase()}
-              </span>
-          </div>
-        </motion.div>
-
-        {/* Two Column: Online Users + Activity Feed */}
+        {/* Two Column: Clicker Stats + User Info */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ClickerStats
+            userCountry={userCountry.name}
+            userCountryCode={userCountry.code}
+            userId={userId}
+            personalClicks={personalClicks}
+            totalClicks={totalClicks}
+          />
           <OnlineUsers users={onlineUsers} totalOnline={onlineUsers.length} />
+        </section>
+
+        {/* Activity Feed */}
+        <section>
           <ActivityFeed activities={activities} />
         </section>
 
@@ -229,7 +226,7 @@ export default function Home() {
           />
         </section>
 
-        {/* Three Column: Evolution + Achievements + Leaderboard */}
+        {/* Evolution + Achievements + Leaderboard */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <EvolutionSystem
             currentMilestoneIndex={currentMilestoneIndex}
